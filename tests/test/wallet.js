@@ -22,4 +22,20 @@ contract("Wallet", (accounts) => {
 			"only approver allowed"
 		);
 	});
+	it("Should not send transfer if not enough approvers", async () => {
+		/**
+		 *	1. get balance
+		 *	2. createTransfer with a non-approver
+		 *	3. get balance
+		 *	4. compare balance
+		 *	5. assert
+		 */
+		let to = accounts[5];
+		let approver = accounts[0];
+		const initialBalance = web3.utils.toBN(await web3.eth.getBalance(to));
+		await wallet.createTransfer(1000, to, { from: approver });
+		await wallet.sendTransfer(0, { from: approver });
+		const finalBalance = web3.utils.toBN(await web3.eth.getBalance(to));
+		assert(finalBalance.sub(initialBalance).isZero());
+	});
 });
